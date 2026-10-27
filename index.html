@@ -1,24 +1,13 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#17603b"><title>Controle GCIF — Operação Florestal</title>
-<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css?v=8">
-</head>
-<body>
-<header><div><small>OPERAÇÃO FLORESTAL • CBMBA</small><h1>Controle GCIF</h1><p id="baseTitle">Controle da Operação</p></div><button id="share">Compartilhar</button></header>
-<main>
-<section id="adminBar" class="adminBar"><span id="authStatus">Visualização pública</span><button id="loginBtn">Entrar como administrador</button><button id="logoutBtn" hidden>Sair</button></section>
-<div id="authMessage" class="authMessage" hidden></div>
-<section class="basePanel"><div><small>BASE FLORESTAL</small><strong id="baseName">BASE OESTE (BARREIRAS)</strong></div><button id="configBtn" hidden>⚙ Configurar Base</button></section>
-<section id="staff" class="staff"></section>
-<section id="summary" class="summary"></section>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#17603b"><title>Controle GCIF — Operação Florestal</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css?v=8"></head><body>
+<header><div><small>OPERAÇÃO FLORESTAL • CBMBA</small><h1>Controle GCIF</h1><p id="baseTitle">Controle da Operação</p></div><button id="share">Compartilhar</button></header><main>
+<section id="adminBar" class="adminBar"><span id="authStatus">Visualização pública</span><button id="loginBtn">Entrar como administrador</button><button id="logoutBtn" hidden>Sair</button></section><div id="authMessage" class="authMessage" hidden></div>
+<section class="basePanel"><div><small>BASE FLORESTAL</small><strong id="baseName">BASE OESTE (BARREIRAS)</strong></div><button id="configBtn" hidden>⚙ Configurar Base</button></section><section id="staff" class="staff"></section><section id="summary" class="summary"></section>
 <section class="toolbar"><input id="search" placeholder="Buscar GCIF, militar, cidade ou viatura"><select id="filter"><option value="TODOS">Todos os status</option><option>COMBATE</option><option>MONITORAMENTO</option><option>PRONTIDÃO</option><option>BASE</option><option>X</option></select></section>
 <section class="legend detailed"><span><b>PRT</b> — Viatura em condições de operação, pronta para emprego</span><span><b>M</b> — GCIF realizando monitoramento da área onde o incêndio foi debelado</span><span><b>🔥 COMBATE</b> — GCIF atuando na extinção do incêndio</span><span><b>X</b> — GCIF disponibilizado para outra Base Florestal</span></section>
-<section><div class="sectionTitle"><h2>Situação Operacional</h2><button id="editMode" hidden>Editar</button></div><div id="board" class="board"></div></section>
-</main>
+<section><div class="sectionTitle"><h2>Situação Operacional</h2><button id="editMode" hidden>Editar</button></div><div id="board" class="board"></div></section></main>
 <dialog id="editor"><form method="dialog"><h2 id="editTitle">Editar GCIF</h2><label>Status<select id="eStatus"><option>COMBATE</option><option>MONITORAMENTO</option><option>PRONTIDÃO</option><option>BASE</option><option>X</option></select></label><label>Localidade<input id="eCity"></label><label>Viatura / Prefixo<input id="eVehicle"></label><label>Equipe (um militar por linha)<textarea id="eTeam" rows="7"></textarea></label><label>Motorista<select id="eDriver"><option value="">Selecione o motorista</option></select></label><label>Observações<textarea id="eNotes" rows="3"></textarea></label><div class="actions"><button value="cancel">Cancelar</button><button id="save" value="default">Salvar</button></div></form></dialog>
-<dialog id="configDialog"><form method="dialog"><h2>Configuração da Base</h2><label>Base Florestal<select id="cBase"><option>BASE CHAPADA - LENÇÓIS</option><option>BASE MEIO OESTE (B. JESUS DA LAPA)</option><option>BASE NORTE (JUAZEIRO)</option><option>BASE OESTE (BARREIRAS)</option><option>BASE SUDOESTE (V. DA CONQUISTA)</option></select></label><label>Comandante da Base<input id="cCommander"></label><label>Responsável pela Logística<input id="cLogistics"></label><label>Apoio administrativo (um nome por linha)<textarea id="cAdminSupport" rows="4"></textarea></label><label>Controle das viaturas (um nome por linha)<textarea id="cVehicles" rows="4"></textarea></label><hr><h3>Administradores</h3><p class="help">Para autorizar outro administrador, informe o UID da conta Google dele no Firebase. Um UID por linha.</p><textarea id="cAdmins" rows="4" placeholder="UID do administrador"></textarea><div class="actions"><button value="cancel">Cancelar</button><button id="saveConfig" value="default">Salvar configuração</button></div></form></dialog>
-<footer>Controle Operacional • Operação Florestal • CBMBA</footer>
-<script type="module" src="app.js?v=8"></script>
-</body></html>
+<dialog id="configDialog"><form method="dialog"><h2>Configuração da Base</h2><label>Base Florestal<select id="cBase"><option>BASE CHAPADA - LENÇÓIS</option><option>BASE MEIO OESTE (B. JESUS DA LAPA)</option><option>BASE NORTE (JUAZEIRO)</option><option>BASE OESTE (BARREIRAS)</option><option>BASE SUDOESTE (V. DA CONQUISTA)</option></select></label><label>Comandante da Base<input id="cCommander"></label><label>Responsável pela Logística<input id="cLogistics"></label><label>Apoio administrativo (um nome por linha)<textarea id="cAdminSupport" rows="4"></textarea></label><label>Controle das viaturas (um nome por linha)<textarea id="cVehicles" rows="4"></textarea></label><div class="actions"><button value="cancel">Cancelar</button><button id="saveConfig" value="default">Salvar configuração</button></div></form></dialog>
+<dialog id="accessDialog"><form method="dialog"><h2>Solicitar acesso de administrador</h2><p>Você entrou com a conta <b id="requestEmail"></b>. Envie esta solicitação ao Administrador Principal. Depois de autorizada, esta conta poderá editar GCIFs e informações da Base.</p><div class="actions"><button value="cancel">Cancelar</button><button id="requestAccess" value="default">Solicitar autorização</button></div></form></dialog>
+<dialog id="adminsDialog"><form method="dialog"><h2>Administradores</h2><p class="help">Somente o Administrador Principal pode autorizar ou remover administradores.</p><div id="pendingAdmins"></div><h3>Administradores autorizados</h3><div id="authorizedAdmins"></div><div class="actions"><button value="cancel">Fechar</button></div></form></dialog>
+<footer>Controle Operacional • Operação Florestal • CBMBA</footer><script type="module" src="app.js?v=9"></script></body></html>
