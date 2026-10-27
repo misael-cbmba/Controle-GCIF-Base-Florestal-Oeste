@@ -9,6 +9,7 @@
 <header><div><small>OPERAÇÃO FLORESTAL • CBMBA</small><h1>Controle GCIF</h1><p>Base Florestal Oeste — Barreiras</p></div><button id="share">Compartilhar</button></header>
 <main>
 <section id="adminBar" class="adminBar"><span id="authStatus">Visualização pública</span><button id="loginBtn">Entrar como administrador</button><button id="logoutBtn" hidden>Sair</button></section>
+<div id="authMessage" class="authMessage" hidden></div>
 <section id="summary" class="summary"></section>
 <section class="toolbar"><input id="search" placeholder="Buscar GCIF, militar, cidade ou viatura"><select id="filter"><option value="TODOS">Todos os status</option><option>COMBATE</option><option>MONITORAMENTO</option><option>PRONTIDÃO</option><option>BASE</option></select></section>
 <section class="legend"><span>🔥 Combate</span><span>M Monitoramento</span><span>PRT Prontidão</span><span>● Base/Disponível</span></section>
@@ -16,5 +17,5 @@
 </main>
 <dialog id="editor"><form method="dialog" id="form"><h2 id="editTitle">Editar GCIF</h2><label>Status<select id="eStatus"><option>COMBATE</option><option>MONITORAMENTO</option><option>PRONTIDÃO</option><option>BASE</option></select></label><label>Localidade<input id="eCity"></label><label>Viatura / Prefixo<input id="eVehicle"></label><label>Equipe (um militar por linha)<textarea id="eTeam" rows="7"></textarea></label><label>Observações<textarea id="eNotes" rows="3"></textarea></label><div class="actions"><button value="cancel">Cancelar</button><button id="save" value="default">Salvar</button></div></form></dialog>
 <footer>Controle Operacional • Base Florestal Oeste</footer>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=3"></script>
 </body></html>
