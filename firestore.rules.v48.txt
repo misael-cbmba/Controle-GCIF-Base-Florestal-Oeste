@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner() { return signedIn() && request.auth.uid == "OgNobhkzEuQsrk8LokL1hXU6h1C3"; }
+    function adminDoc() { return get(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function adminBase() { return adminDoc().data.base; }
+    function baseFromGcifId(id) {
+      return id.matches('^chapada__.*') ? 'chapada' :
+             id.matches('^meio-oeste__.*') ? 'meio-oeste' :
+             id.matches('^norte__.*') ? 'norte' :
+             id.matches('^sudoeste__.*') ? 'sudoeste' : 'oeste';
+    }
+    function baseFromConfigId(id) {
+      return id == 'operation_chapada' ? 'chapada' :
+             id == 'operation_meio-oeste' ? 'meio-oeste' :
+             id == 'operation_norte' ? 'norte' :
+             id == 'operation_sudoeste' ? 'sudoeste' : 'oeste';
+    }
+    function mayWriteBase(base) { return owner() || (isAdmin() && adminBase() == base); }
+
+    match /gcifs/{id} {
+      allow read: if true;
+      allow create, update, delete: if mayWriteBase(baseFromGcifId(id));
+    }
+    match /config/{id} {
+      allow read: if true;
+      allow create, update, delete: if mayWriteBase(baseFromConfigId(id));
+    }
+    match /admins/{uid} {
+      allow read: if signedIn();
+      allow create, update, delete: if owner();
+    }
+    match /requests/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || owner());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.base in ['chapada','meio-oeste','norte','oeste','sudoeste']
+        && request.resource.data.rank in ['TEN CEL BM','MAJ BM','CAP BM','TEN BM'];
+      allow update: if signedIn() && request.auth.uid == uid;
+      allow delete: if owner();
+    }
+  }
+}
