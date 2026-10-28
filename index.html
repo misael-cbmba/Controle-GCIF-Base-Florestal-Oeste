@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13251c"><title>Controle GCIF — Operação Florestal</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css?v=34"></head><body>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13251c"><title>Controle GCIF — Operação Florestal</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css?v=35"></head><body>
 <header class="hero"><div class="brand"><div class="brandText"><h1>CBMBA</h1><strong>CORPO DE BOMBEIROS MILITAR DA BAHIA</strong><span>OPERAÇÃO FLORESTAL</span></div></div><div class="baseHero"><small>BASE ATUAL</small><div class="baseHeroRow"><span class="pin">●</span><div><strong id="baseTitle">BASE OESTE (BARREIRAS)</strong><em>Controle da Operação</em></div></div><div class="heroActions"><button id="headerBaseBtn" hidden>⚙ Selecionar Base</button><button id="share" type="button">Compartilhar</button></div></div></header><main>
 <section id="dailyDate" style="margin:14px 0 10px;padding:14px 20px;background:#0b633f;color:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:clamp(18px,2vw,26px);letter-spacing:.2px;box-shadow:0 3px 10px #0002"><span aria-hidden="true">📅</span><span id="dailyDateText"></span></section>
 <section id="adminBar" class="adminBar"><span id="authStatus">Visualização pública</span><button id="loginBtn" type="button">Entrar como administrador</button><button id="logoutBtn" hidden>Sair</button></section><div id="authMessage" class="authMessage" hidden></div>
@@ -23,27 +23,10 @@ const gcifAuth=window.firebase?firebase.auth():null;
 const gcifDb=window.firebase?firebase.firestore():null;
 function gcifMsg(text,error=false){const m=document.getElementById('authMessage');if(!m)return;m.hidden=!text;m.className=error?'authMessage error':'authMessage';m.textContent=text||'';}
 window.gcifShare=async function(){const url=location.origin+location.pathname;const text='Controle GCIF — Operação Florestal';try{if(navigator.share){await navigator.share({title:text,text,url});return;}}catch(e){if(e.name==='AbortError')return;}const w='https://wa.me/?text='+encodeURIComponent(text+' '+url);const opened=window.open(w,'_blank');if(!opened)location.href=w;};
-window.gcifLogin=async function(){if(!gcifAuth){gcifMsg('Não foi possível carregar o login. Atualize a página.',true);return;}gcifMsg('Abrindo login do Google…');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});try{await gcifAuth.signInWithPopup(provider);}catch(e){if(['auth/popup-blocked','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'].includes(e.code)){try{await gcifAuth.signInWithRedirect(provider);}catch(r){gcifMsg('Erro no login: '+(r.code||r.message),true);}}else if(e.code!=='auth/popup-closed-by-user'){gcifMsg('Erro no login: '+(e.code||e.message),true);}}};
+window.gcifLogin=async function(){if(!gcifAuth){gcifMsg('Não foi possível carregar o login. Atualize a página.',true);return;}gcifMsg('Redirecionando para o login do Google…');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});try{await gcifAuth.signInWithRedirect(provider);}catch(e){gcifMsg('Erro no login: '+(e.code||e.message),true);}};
 window.gcifRequestAccess=async function(){const u=gcifAuth&&gcifAuth.currentUser;if(!u||!gcifDb){gcifMsg('Entre com sua conta Google antes de solicitar acesso.',true);return;}try{await gcifDb.collection('requests').doc(u.uid).set({uid:u.uid,email:u.email||'',name:u.displayName||'',requestedAt:new Date().toISOString()});document.getElementById('accessDialog')?.close();gcifMsg('Solicitação enviada ao Administrador Principal.');}catch(e){gcifMsg('Não foi possível enviar a solicitação: '+(e.code||e.message),true);}};
-window.addEventListener('DOMContentLoaded',()=>{
- const share=document.getElementById('share'),login=document.getElementById('loginBtn'),request=document.getElementById('requestAccess');
- if(share)share.onclick=window.gcifShare;
- if(login)login.onclick=window.gcifLogin;
- if(request)request.onclick=e=>{e.preventDefault();window.gcifRequestAccess();};
- setTimeout(()=>{if(share)share.onclick=window.gcifShare;if(login)login.onclick=window.gcifLogin;if(request)request.onclick=e=>{e.preventDefault();window.gcifRequestAccess();};},1500);
-});
-if(gcifAuth)gcifAuth.onAuthStateChanged(async u=>{
- if(!u)return;
- try{
-   const isOwner=u.uid===GCIF_OWNER;
-   const isAdm=isOwner||(gcifDb&&(await gcifDb.collection('admins').doc(u.uid).get()).exists);
-   if(!isAdm){
-     const email=document.getElementById('requestEmail');if(email)email.textContent=u.email||u.displayName||'';
-     gcifMsg('Conta Google conectada. Solicite autorização ao Administrador Principal.');
-     const d=document.getElementById('accessDialog');if(d&&!d.open)d.showModal();
-   }
- }catch(e){gcifMsg('Login realizado, mas não foi possível verificar a autorização: '+(e.code||e.message),true);}
-});
+window.addEventListener('DOMContentLoaded',()=>{const share=document.getElementById('share'),login=document.getElementById('loginBtn'),request=document.getElementById('requestAccess');const bind=()=>{if(share)share.onclick=window.gcifShare;if(login)login.onclick=window.gcifLogin;if(request)request.onclick=e=>{e.preventDefault();window.gcifRequestAccess();};};bind();setTimeout(bind,1500);setTimeout(bind,4000);});
+if(gcifAuth){gcifAuth.getRedirectResult().catch(e=>gcifMsg('Erro no retorno do Google: '+(e.code||e.message),true));gcifAuth.onAuthStateChanged(async u=>{if(!u)return;try{const isOwner=u.uid===GCIF_OWNER;const isAdm=isOwner||(gcifDb&&(await gcifDb.collection('admins').doc(u.uid).get()).exists);if(!isAdm){const email=document.getElementById('requestEmail');if(email)email.textContent=u.email||u.displayName||'';gcifMsg('Conta Google conectada. Solicite autorização ao Administrador Principal.');const d=document.getElementById('accessDialog');if(d&&!d.open)d.showModal();}}catch(e){gcifMsg('Login realizado, mas não foi possível verificar a autorização: '+(e.code||e.message),true);}});}
 </script>
-<script src="fallback.js?v=34"></script><script type="module" src="app.js?v=34"></script>
+<script src="fallback.js?v=35"></script><script type="module" src="app.js?v=35"></script>
 <script>const hb=document.getElementById('headerBaseBtn'),cb=document.getElementById('configBtn');hb.onclick=()=>cb.click();const syncBaseButton=()=>hb.hidden=cb.hidden;new MutationObserver(syncBaseButton).observe(cb,{attributes:true,attributeFilter:['hidden']});syncBaseButton();function atualizarDataDiaria(){const agora=new Date();const texto=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});const el=document.getElementById('dailyDateText');if(el)el.textContent=texto.charAt(0).toUpperCase()+texto.slice(1)}atualizarDataDiaria();setInterval(atualizarDataDiaria,60000);</script></body></html>
