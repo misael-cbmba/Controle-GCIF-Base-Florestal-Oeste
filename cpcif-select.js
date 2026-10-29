@@ -1,29 +1,37 @@
 (()=>{
  const q=s=>document.querySelector(s), clean=s=>String(s||'').trim();
- let selected=[];
+ const norm=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').replace(/\bBM\b/g,'').replace(/\s+/g,' ').trim().toUpperCase();
  function names(){return (q('#eTeam')?.value||'').split('\n').map(clean).filter(Boolean)}
  function install(){
   const driver=q('#eDriver'); if(!driver)return;
   const old=q('#cpcifField'); if(old)old.style.display='none';
+  const legacy=q('#cpcifV80Label'); if(legacy)legacy.style.display='none';
   let wrap=q('#cpcifSelectWrap');
-  if(!wrap){wrap=document.createElement('label');wrap.id='cpcifSelectWrap';wrap.innerHTML='Especialista(s) CPCIF<select id="eCpcif" multiple size="5"></select><small style="display:block;margin-top:6px;color:#53605a;font-weight:400">Selecione um ou mais militares com CPCIF. No computador use Ctrl para selecionar mais de um; no celular toque nos nomes disponíveis.</small>';driver.closest('label').insertAdjacentElement('afterend',wrap)}
+  if(!wrap){wrap=document.createElement('label');wrap.id='cpcifSelectWrap';wrap.innerHTML='<span>Militar(es) com CPCIF</span><div id="eCpcif"></div><small>Marque um ou mais militares que possuem o CPCIF.</small>';driver.closest('label').insertAdjacentElement('afterend',wrap)}
   render();
  }
+ function saved(){
+  const legacy=q('#eCpcifV80');
+  if(legacy)return [...legacy.selectedOptions].map(o=>o.value);
+  return [];
+ }
  function render(){
-  const sel=q('#eCpcif'); if(!sel)return;
-  const keep=new Set(selected.map(x=>x.toUpperCase()));
-  [...sel.selectedOptions].forEach(o=>keep.add(o.value.toUpperCase()));
-  sel.innerHTML=names().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${keep.has(n.toUpperCase())?'selected':''}>${n}</option>`).join('');
-  selected=[...sel.selectedOptions].map(o=>o.value);
-  sel.onchange=()=>{selected=[...sel.selectedOptions].map(o=>o.value)};
+  const box=q('#eCpcif'); if(!box)return;
+  const current=new Set([...box.querySelectorAll('input:checked')].map(i=>norm(i.value)));
+  saved().forEach(n=>current.add(norm(n)));
+  box.innerHTML=names().map((n,i)=>`<label class="cpcifChoice"><input type="checkbox" value="${n.replace(/"/g,'&quot;')}" ${current.has(norm(n))?'checked':''}><span>${n}</span><b>🔥🌲 CPCIF</b></label>`).join('')||'<em>Informe primeiro os militares da equipe.</em>';
+ }
+ function sync(){
+  const chosen=[...q('#eCpcif')?.querySelectorAll('input:checked')||[]].map(i=>i.value);
+  const legacy=q('#eCpcifV80');
+  if(legacy)[...legacy.options].forEach(o=>o.selected=chosen.some(n=>norm(n)===norm(o.value)));
+  const hidden=q('#cpcifChoices');
+  if(hidden)hidden.querySelectorAll('input').forEach(i=>i.checked=chosen.some(n=>norm(n)===norm(i.value)));
  }
  const ed=q('#editor');
- if(ed)new MutationObserver(()=>{if(ed.open){selected=[];setTimeout(install,100)}}).observe(ed,{attributes:true,attributeFilter:['open']});
- q('#eTeam')?.addEventListener('input',render);
- q('#save')?.addEventListener('click',()=>{
-  const hidden=q('#cpcifChoices'); if(!hidden)return;
-  const chosen=new Set([...q('#eCpcif')?.selectedOptions||[]].map(o=>o.value.toUpperCase()));
-  hidden.querySelectorAll('input').forEach(i=>i.checked=chosen.has(i.value.toUpperCase()));
- },true);
- const st=document.createElement('style');st.textContent='#cpcifSelectWrap{display:block;margin:14px 0;font-weight:800}#eCpcif{width:100%;min-height:150px;margin-top:7px;padding:6px;border:1px solid #cfd8d3;border-radius:12px;background:#fff;font-size:16px}#eCpcif option{padding:10px 12px;border-radius:7px;margin:2px 0}#eCpcif option:checked{background:#176b3a;color:#fff}';document.head.appendChild(st);
+ if(ed)new MutationObserver(()=>{if(ed.open)setTimeout(install,180)}).observe(ed,{attributes:true,attributeFilter:['open']});
+ q('#eTeam')?.addEventListener('input',()=>setTimeout(render,0));
+ q('#save')?.addEventListener('click',sync,true);
+ const st=document.createElement('style');st.textContent=`#cpcifSelectWrap{display:block;margin:14px 0;font-weight:800}#cpcifSelectWrap>small{display:block;margin-top:6px;color:#53605a;font-weight:400}#eCpcif{display:grid;gap:6px;margin-top:7px}.cpcifChoice{display:flex!important;align-items:center;gap:9px;padding:10px 12px;border:1px solid #cfd8d3;border-radius:10px;background:#fff;font-weight:600!important;cursor:pointer}.cpcifChoice input{width:20px;height:20px;flex:0 0 auto}.cpcifChoice span{flex:1}.cpcifChoice b{display:none;color:#08783e;font-size:11px}.cpcifChoice:has(input:checked){background:#d8f1df;border-color:#08783e;color:#075b35}.cpcifChoice:has(input:checked) b{display:inline-block}#eCpcif em{font-weight:400;color:#65756c;padding:8px}`;document.head.appendChild(st);
+ install();
 })();
