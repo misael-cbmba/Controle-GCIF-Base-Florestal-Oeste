@@ -1,18 +1,2 @@
-import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
-import { getFirestore, collection, onSnapshot, doc, setDoc } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
-const firebaseConfig={apiKey:'AIzaSyB6vG41F_gaQRk6jMMgBT-AEclDFlBWLOo',authDomain:'controle-gcif-oeste.firebaseapp.com',projectId:'controle-gcif-oeste',storageBucket:'controle-gcif-oeste.firebasestorage.app',messagingSenderId:'43290614749',appId:'1:43290614749:web:16c567c1164e3c5aac3434'};
-const app=getApps()[0]||initializeApp(firebaseConfig),db=getFirestore(app);
-let rows=[];
-const clean=s=>String(s||'').trim();
-const key=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').toUpperCase();
-const baseKey=()=>localStorage.getItem('gcifBase')||'oeste';
-const inBase=(g,k)=>k==='oeste'?(!g.base||g.base==='oeste'):g.base===k;
-const cpcifList=g=>Array.isArray(g?.cpcif)?g.cpcif.map(clean).filter(Boolean):[];
-function same(a,b){const x=key(a),y=key(b);return x===y||x.replace(/\s+BM\s+/,' ')===y.replace(/\s+BM\s+/,' ')}
-function renderCards(){document.querySelectorAll('#board .card').forEach(card=>{const m=card.querySelector('h3')?.textContent.match(/(\d+)/);if(!m)return;const g=rows.find(x=>inBase(x,baseKey())&&Number(x.id)===Number(m[1]));if(!g)return;const team=Array.isArray(g.team)?g.team:[],cp=cpcifList(g),driver=clean(g.driver),ul=card.querySelector('ul.team');if(ul)ul.innerHTML=team.map(n=>{const d=same(n,driver),c=cp.some(v=>same(n,v)),classes=[d?'driver':'',c?'cpcifCore':''].filter(Boolean).join(' ');return `<li class="${classes}"><span>${clean(n)}</span>${d?'<span class="driverTag">🚒 MOTORISTA</span>':''}${c?'<span class="cpcifCoreTag">🔥🌲 CPCIF</span>':''}</li>`}).join('');let info=card.querySelector('[data-cpcif-core]');if(cp.length){if(!info){info=document.createElement('div');info.dataset.cpcifCore='1';card.appendChild(info)}info.className='cpcifCoreInfo';info.innerHTML=`<b>🔥🌲 CPCIF:</b> ${cp.join(' • ')}`}else info?.remove()})}
-function syncAndSave(){const sel=document.querySelector('#eCpcif'),title=document.querySelector('#editTitle')?.textContent||'',m=title.match(/GCIF\s+(\d+)/i);if(!sel||!m)return;const id=Number(m[1]),k=baseKey(),idDoc=k==='oeste'?String(id):`${k}__${String(id).padStart(2,'0')}`,cpcif=[...sel.selectedOptions].map(o=>o.value);setTimeout(()=>setDoc(doc(db,'gcifs',idDoc),{cpcif},{merge:true}).catch(()=>{}),450)}
-document.querySelector('#save')?.addEventListener('click',syncAndSave,true);
-onSnapshot(collection(db,'gcifs'),s=>{rows=s.docs.map(d=>({...d.data(),id:Number(d.data().id||String(d.id).split('__').pop())}));setTimeout(renderCards,80)});
-const observer=new MutationObserver(()=>{clearTimeout(window.__cpcifRenderTimer);window.__cpcifRenderTimer=setTimeout(renderCards,40)});observer.observe(document.querySelector('#board')||document.body,{childList:true,subtree:true});
-const style=document.createElement('style');style.textContent=`#board li.cpcifCore{background:#d8f1df!important;border-left:5px solid #08783e!important;border-radius:8px!important;padding:5px 8px!important;font-weight:900!important;color:#075b35!important;margin:3px 0!important}#board li.cpcifCore.driver{background:linear-gradient(90deg,#fff0ae 0 48%,#d8f1df 48% 100%)!important}.cpcifCoreTag{display:inline-block;margin-left:7px;background:#08783e;color:#fff!important;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:900;white-space:nowrap}.cpcifCoreInfo{margin-top:10px;padding:8px 10px;background:#e8f6ec;border:1px solid #9dceb0;border-radius:9px;color:#075b35;font-size:13px;font-weight:700}`;document.head.appendChild(style);
-setTimeout(renderCards,300);
+// CPCIF v80 — carregador compatível. A lógica ativa está em arquivo versionado único.
+import './cpcif-core-v80.js?v=80';
