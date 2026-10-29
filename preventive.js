@@ -13,7 +13,7 @@ function installControls(){
  const filter=document.getElementById('filter');
  if(filter&&!filter.querySelector('option[value="ATIVIDADES PREVENTIVAS"]')){const o=document.createElement('option');o.value='ATIVIDADES PREVENTIVAS';o.textContent='ATIVIDADES PREVENTIVAS';filter.insertBefore(o,filter.querySelector('option[value="BASE"]'))}
  const legend=document.querySelector('.legend.detailed');
- if(legend&&!legend.querySelector('[data-preventiva]')){const s=document.createElement('span');s.dataset.preventiva='1';s.innerHTML='<b>🌱 ATIVIDADES PREVENTIVAS</b> — GCIF realizando orientação à população sobre manejo seguro do fogo para prevenção de queimadas';legend.insertBefore(s,legend.lastElementChild)}
+ if(legend&&!legend.querySelector('[data-preventiva]')){const s=document.createElement('span');s.dataset.preventiva='1';s.innerHTML='<b>🌱 ATIVIDADES PREVENTIVAS</b> — GCIF realizando ações de orientação à população local relacionadas à prevenção de incêndios florestais';legend.insertBefore(s,legend.lastElementChild)}
 }
 function patchCards(){
  const current=rows.filter(g=>inBase(g,baseKey()));
@@ -29,3 +29,24 @@ const obs=new MutationObserver(()=>requestAnimationFrame(patch));obs.observe(doc
 onSnapshot(collection(db,'gcifs'),s=>{rows=s.docs.map(d=>d.data());patch()});
 installControls();
 const style=document.createElement('style');style.textContent='.card.preventiva{border-left:6px solid #2e7d32!important;background:#eef8ef!important}.card.preventiva .badge{background:#2e7d32!important;color:#fff!important}.card.preventiva .place{color:#1b5e20!important}[data-preventiva-stat],[data-preventiva-general]{border:2px solid #2e7d32!important;background:#eef8ef!important}[data-preventiva-stat] b,[data-preventiva-general] b{color:#1b5e20!important}';document.head.appendChild(style);
+
+// Complementa o relatório PDF com o novo status operacional.
+const nativeOpen=window.open.bind(window);
+window.open=(...args)=>{
+ const w=nativeOpen(...args);if(!w)return w;
+ const originalWrite=w.document.write.bind(w.document);
+ w.document.write=(html)=>{
+  if(typeof html==='string'&&html.includes('RELATÓRIO GERAL DE FUNCIONAMENTO DAS BASES FLORESTAIS')){
+   const totalPrev=count(rows,'ATIVIDADES PREVENTIVAS');
+   const summaryStat=`<div class="stat" style="border:2px solid #2e7d32;background:#eef8ef"><b style="color:#1b5e20">🌱 ${totalPrev}</b><span>Atividades Preventivas</span></div>`;
+   html=html.replace('<div class="label">Visão rápida por Base</div>',summaryStat+'</div><div class="label">Visão rápida por Base</div>').replace(summaryStat+'</div></div>',summaryStat+'</div>');
+   BASES.forEach(([k])=>{
+    const a=rows.filter(g=>inBase(g,k)),p=count(a,'ATIVIDADES PREVENTIVAS'),prt=count(a,'PRONTIDÃO'),m=count(a,'MONITORAMENTO'),b=count(a,'BASE'),x=count(a,'X');
+    html=html.replace(`PRT ${prt} • M ${m} • Base ${b} • X ${x}`,`PRT ${prt} • M ${m} • 🌱 Preventivas ${p} • Base ${b} • X ${x}`);
+    html=html.replace(`<span>M ${m}</span><span>● ${b} Base</span>`,`<span>M ${m}</span><span>🌱 ${p} Ativ. Preventivas</span><span>● ${b} Base</span>`);
+   });
+  }
+  return originalWrite(html);
+ };
+ return w;
+};
