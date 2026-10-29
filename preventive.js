@@ -39,7 +39,7 @@ window.open=(...args)=>{
   if(typeof html==='string'&&html.includes('RELATÓRIO GERAL DE FUNCIONAMENTO DAS BASES FLORESTAIS')){
    const totalPrev=count(rows,'ATIVIDADES PREVENTIVAS');
    const summaryStat=`<div class="stat" style="border:2px solid #2e7d32;background:#eef8ef"><b style="color:#1b5e20">🌱 ${totalPrev}</b><span>Atividades Preventivas</span></div>`;
-   html=html.replace('<div class="label">Visão rápida por Base</div>',summaryStat+'</div><div class="label">Visão rápida por Base</div>').replace(summaryStat+'</div></div>',summaryStat+'</div>');
+   html=html.replace('</div><div class="label">Visão rápida por Base</div>',summaryStat+'</div><div class="label">Visão rápida por Base</div>');
    BASES.forEach(([k])=>{
     const a=rows.filter(g=>inBase(g,k)),p=count(a,'ATIVIDADES PREVENTIVAS'),prt=count(a,'PRONTIDÃO'),m=count(a,'MONITORAMENTO'),b=count(a,'BASE'),x=count(a,'X');
     html=html.replace(`PRT ${prt} • M ${m} • Base ${b} • X ${x}`,`PRT ${prt} • M ${m} • 🌱 Preventivas ${p} • Base ${b} • X ${x}`);
