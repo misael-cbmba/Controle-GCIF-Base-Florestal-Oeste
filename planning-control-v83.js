@@ -1,3 +1,4 @@
+import './operational-evolution-v89.js';
 import { initializeApp,getApps } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
 import { getFirestore,collection,onSnapshot,doc,setDoc,addDoc,serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
