@@ -1,3 +1,3 @@
-// CPCIF v102 — carregador compatível. Mantém a lógica CPCIF e ativa a correção do login administrativo.
+// CPCIF v105 — mantém a lógica CPCIF e carrega o roteamento único do login administrativo.
 import './cpcif-core-v80.js?v=98';
-import './auth-fix-v101.js?v=102';
+import './auth-fix-v101.js?v=105';
