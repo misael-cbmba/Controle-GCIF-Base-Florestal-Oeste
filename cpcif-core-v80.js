@@ -29,14 +29,19 @@ function fillEditor(){
  sel.innerHTML=team.map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${saved.some(v=>same(n,v))?'selected':''}>${n}</option>`).join('');
  window.dispatchEvent(new CustomEvent('gcif-cpcif-loaded',{detail:{saved,team}}));
 }
-async function saveCpcif(){
+function saveCpcif(){
  const box=document.querySelector('#eCpcif');
  const chosen=box?[...box.querySelectorAll('input:checked')].map(i=>clean(i.value)):[];
  const legacy=document.querySelector('#eCpcifV80');
  const cpcif=chosen.length?chosen:(legacy?[...legacy.selectedOptions].map(o=>clean(o.value)):[]);
  const id=Number((document.querySelector('#editTitle')?.textContent.match(/\d+/)||[])[0]);if(!id)return;
  const k=baseKey(),idDoc=k==='oeste'?String(id):`${k}__${String(id).padStart(2,'0')}`;
- try{await setDoc(doc(db,'gcifs',idDoc),{cpcif},{merge:true})}catch(e){console.error('Erro ao salvar CPCIF',e);alert('Não foi possível salvar o CPCIF. Tente novamente.')}
+ // O app principal salva o documento completo. Gravamos CPCIF logo depois,
+ // com merge, para impedir que o salvamento principal apague a seleção.
+ setTimeout(async()=>{
+  try{await setDoc(doc(db,'gcifs',idDoc),{cpcif},{merge:true})}
+  catch(e){console.error('Erro ao salvar CPCIF',e);alert('Não foi possível salvar o CPCIF. Tente novamente.')}
+ },900);
 }
 onSnapshot(collection(db,'gcifs'),s=>{rows=s.docs.map(d=>({...d.data(),id:Number(d.data().id||String(d.id).split('__').pop())}));draw();if(document.querySelector('#editor')?.open)setTimeout(fillEditor,80)});
 new MutationObserver(()=>{clearTimeout(window.__cp80);window.__cp80=setTimeout(()=>{draw();if(document.querySelector('#editor')?.open)fillEditor()},80)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
