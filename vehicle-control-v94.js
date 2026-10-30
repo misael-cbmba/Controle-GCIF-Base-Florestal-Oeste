@@ -1,3 +1,4 @@
+import './gcif-card-actions-v117.js';import './gcif-delete-handler-v117.js';
 import{initializeApp,getApps}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';import{getFirestore,collection,onSnapshot,doc,setDoc,serverTimestamp}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';import{getAuth}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
 const cfg={apiKey:'AIzaSyB6vG41F_gaQRk6jMMgBT-AEclDFlBWLOo',authDomain:'controle-gcif-oeste.firebaseapp.com',projectId:'controle-gcif-oeste',storageBucket:'controle-gcif-oeste.firebasestorage.app',messagingSenderId:'43290614749',appId:'1:43290614749:web:16c567c1164e3c5aac3434'},app=getApps()[0]||initializeApp(cfg),db=getFirestore(app),auth=getAuth(app);
 const BASES={chapada:'BASE CHAPADA - LENÇÓIS','meio-oeste':'BASE MEIO OESTE (B. JESUS DA LAPA)',norte:'BASE NORTE (JUAZEIRO)',oeste:'BASE OESTE (BARREIRAS)',sudoeste:'BASE SUDOESTE (V. DA CONQUISTA)'};
