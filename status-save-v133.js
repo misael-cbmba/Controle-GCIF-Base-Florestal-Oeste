@@ -1,0 +1,13 @@
+import{getApps}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
+import{getFirestore,collection,onSnapshot,doc,setDoc}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+const app=getApps()[0],db=getFirestore(app);let docs=new Map(),editing=null;
+const base=()=>localStorage.getItem('gcifBase')||'oeste';
+const key=(b,id)=>`${b}:${Number(id)}`;
+const cat=s=>{s=String(s||'').trim().toUpperCase();if(s==='COMBATE')return'COMBATE';if(s==='MONITORAMENTO'||s==='M')return'MONITORAMENTO';if(['ATIVIDADES PREVENTIVAS','PREVENTIVA','PREVENTIVO'].includes(s))return'ATIVIDADES PREVENTIVAS';return'ECD-BASE'};
+const label=s=>({COMBATE:'🔥 COMBATE',MONITORAMENTO:'M', 'ATIVIDADES PREVENTIVAS':'🌱 PREVENTIVAS','ECD-BASE':'● ECD-BASE'})[cat(s)];
+onSnapshot(collection(db,'gcifs'),snap=>{docs.clear();snap.docs.forEach(d=>{const g=d.data(),id=Number(g.id||String(d.id).split('__').pop()),b=g.base||'oeste';docs.set(key(b,id),{docId:d.id,status:g.status})});setTimeout(syncCards,50)});
+function syncCards(){document.querySelectorAll('#board article.card').forEach(card=>{const id=Number((card.querySelector('h3')?.textContent.match(/\d+/)||[])[0]);if(!id)return;const r=docs.get(key(base(),id)),badge=card.querySelector('.badge');if(r&&badge)badge.textContent=label(r.status)})}
+document.addEventListener('click',e=>{const edit=e.target.closest('[data-edit-id]');if(edit){editing=Number(edit.dataset.editId);setTimeout(()=>{const s=document.getElementById('eStatus'),r=docs.get(key(base(),editing));if(s&&r)s.value=cat(r.status)},80)}},true);
+document.getElementById('addGcifBtn')?.addEventListener('click',()=>{editing=null},true);
+document.getElementById('save')?.addEventListener('click',()=>{const s=document.getElementById('eStatus');if(!s)return;const chosen=cat(s.value),title=document.getElementById('editTitle')?.textContent||'',id=editing||Number((title.match(/\d+/)||[])[0]);if(!id)return;const b=base(),r=docs.get(key(b,id)),docId=r?.docId||(b==='oeste'?String(id):`${b}__${String(id).padStart(2,'0')}`);setTimeout(async()=>{try{await setDoc(doc(db,'gcifs',docId),{status:chosen},{merge:true})}catch(err){console.error('Falha ao persistir situação operacional',err)}},700)},true);
+new MutationObserver(()=>{clearTimeout(window.__status133);window.__status133=setTimeout(syncCards,120)}).observe(document.getElementById('board')||document.body,{childList:true,subtree:true});
