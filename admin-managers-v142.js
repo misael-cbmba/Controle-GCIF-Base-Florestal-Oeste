@@ -6,12 +6,28 @@ const OWNER_EMAIL='leasim.sousa@gmail.com';
 const BASES={chapada:'BASE CHAPADA - LENÇÓIS','meio-oeste':'BASE MEIO OESTE (B. JESUS DA LAPA)',norte:'BASE NORTE (JUAZEIRO)',oeste:'BASE OESTE (BARREIRAS)',sudoeste:'BASE SUDOESTE (V. DA CONQUISTA)'};
 const waitApp=()=>new Promise(resolve=>{const t=setInterval(()=>{const a=getApps()[0];if(a){clearInterval(t);resolve(a)}},50)});
 const app=await waitApp(),auth=getAuth(app),db=getFirestore(app);
-let user=null,owner=false,manager=false;
+let user=null,owner=false,manager=false,managerBase='';
 const $=s=>document.querySelector(s);
 const message=(t,e=false)=>{const x=$('#authMessage');if(x){x.hidden=false;x.textContent=t;x.className=e?'authMessage error':'authMessage'}};
 const baseName=k=>BASES[k]||BASES.oeste;
 
-async function role(){user=auth.currentUser;owner=!!user&&String(user.email||'').toLowerCase()===OWNER_EMAIL;manager=false;if(user&&!owner){try{const s=await getDoc(doc(db,'admins',user.uid));manager=s.exists()&&s.data().role==='manager'}catch(e){}}const b=$('#manageAdminsBtn');if(b&&(owner||manager)){b.hidden=false;b.textContent=manager?'👥 Gerenciar administradores (Gestor)':'👥 Gerenciar administradores';}}
+function managerAccessUI(){
+ if(!manager||!user)return;
+ const status=$('#authStatus');
+ if(status)status.textContent='Gestor de Administradores: '+(user.email||'');
+ const operational=managerBase?baseName(managerBase):'não definida';
+ const text='✓ Gestor de Administradores — acesso à gestão de administradores das cinco Bases. Administração operacional: '+operational+'.';
+ const box=$('#authMessage');
+ if(box&&box.textContent!==text){box.hidden=false;box.className='authMessage';box.textContent=text}
+ const b=$('#manageAdminsBtn');if(b){b.hidden=false;b.textContent='👥 Gerenciar administradores (Gestor)'}
+}
+
+async function role(){
+ user=auth.currentUser;owner=!!user&&String(user.email||'').toLowerCase()===OWNER_EMAIL;manager=false;managerBase='';
+ if(user&&!owner){try{const s=await getDoc(doc(db,'admins',user.uid));if(s.exists()){const x=s.data();manager=x.role==='manager';managerBase=x.base||''}}catch(e){}}
+ const b=$('#manageAdminsBtn');if(b&&(owner||manager)){b.hidden=false;b.textContent=manager?'👥 Gerenciar administradores (Gestor)':'👥 Gerenciar administradores'}
+ managerAccessUI();
+}
 
 async function load(){if(!(owner||manager))return;const [rq,ad]=await Promise.all([getDocs(collection(db,'requests')),getDocs(collection(db,'admins'))]);
  $('#requestsList').innerHTML='<h3>Solicitações pendentes</h3>'+(rq.empty?'<p>Nenhuma solicitação pendente.</p>':rq.docs.map(d=>{const x=d.data();return `<div style="padding:12px 0;border-bottom:1px solid #ddd"><b>${x.rank?x.rank+' ':''}${x.name||x.email||d.id}</b><br><small>${x.email||''}</small><br><strong>${x.baseName||baseName(x.base)}</strong><br><button type="button" data-v142-approve="${d.id}">Autorizar nesta Base</button> <button type="button" data-v142-reject="${d.id}">Recusar</button></div>`}).join(''));
@@ -33,4 +49,9 @@ document.addEventListener('click',async e=>{
  }catch(err){message('Não foi possível concluir: '+(err.code||err.message),true)}
 },true);
 
-onAuthStateChanged(auth,async()=>{await role()});
+// O módulo legado pode reescrever a mensagem de acesso após atualizações em tempo real.
+// Para Gestores, preserva a identificação correta dos dois níveis de permissão.
+const observer=new MutationObserver(()=>{if(manager)queueMicrotask(managerAccessUI)});
+const accessBox=$('#authMessage');if(accessBox)observer.observe(accessBox,{childList:true,characterData:true,subtree:true});
+
+onAuthStateChanged(auth,async()=>{await role();setTimeout(managerAccessUI,250);setTimeout(managerAccessUI,1000)});
