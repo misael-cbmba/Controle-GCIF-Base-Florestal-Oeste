@@ -4,7 +4,7 @@ const app=getApps()[0],db=getFirestore(app);let docs=new Map(),editing=null;
 const base=()=>localStorage.getItem('gcifBase')||'oeste';
 const key=(b,id)=>`${b}:${Number(id)}`;
 const cat=s=>{s=String(s||'').trim().toUpperCase();if(s==='COMBATE')return'COMBATE';if(s==='MONITORAMENTO'||s==='M')return'MONITORAMENTO';if(['ATIVIDADES PREVENTIVAS','PREVENTIVA','PREVENTIVO'].includes(s))return'ATIVIDADES PREVENTIVAS';return'ECD-BASE'};
-const label=s=>({COMBATE:'🔥 COMBATE',MONITORAMENTO:'M', 'ATIVIDADES PREVENTIVAS':'🌱 PREVENTIVAS','ECD-BASE':'● ECD-BASE'})[cat(s)];
+const label=s=>({COMBATE:'🔥 COMBATE',MONITORAMENTO:'MONITORAMENTO','ATIVIDADES PREVENTIVAS':'🌱 PREVENTIVAS','ECD-BASE':'● ECD-BASE'})[cat(s)];
 onSnapshot(collection(db,'gcifs'),snap=>{docs.clear();snap.docs.forEach(d=>{const g=d.data(),id=Number(g.id||String(d.id).split('__').pop()),b=g.base||'oeste';docs.set(key(b,id),{docId:d.id,status:g.status})});setTimeout(syncCards,50)});
 function syncCards(){document.querySelectorAll('#board article.card').forEach(card=>{const id=Number((card.querySelector('h3')?.textContent.match(/\d+/)||[])[0]);if(!id)return;const r=docs.get(key(base(),id)),badge=card.querySelector('.badge');if(r&&badge)badge.textContent=label(r.status)})}
 document.addEventListener('click',e=>{const edit=e.target.closest('[data-edit-id]');if(edit){editing=Number(edit.dataset.editId);setTimeout(()=>{const s=document.getElementById('eStatus'),r=docs.get(key(base(),editing));if(s&&r)s.value=cat(r.status)},80)}},true);
