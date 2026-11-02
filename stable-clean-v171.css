@@ -1,0 +1,46 @@
+/* v171 — etapa 1: estética clean e responsiva. Somente CSS; sem JS, observers ou alteração de dados. */
+:root{--c-green:#086b45;--c-bg:#f5f7f5;--c-card:#fff;--c-border:#dfe6e1;--c-text:#18231d;--c-muted:#66736b;--shadow:0 5px 18px rgba(25,55,39,.07)}
+body{background:var(--c-bg);color:var(--c-text)}
+main{max-width:1440px;margin:auto}
+.generalPanel,.basePanel,.toolbar,.legend.detailed,#staff .staffCard,#summary>*{border-color:var(--c-border)!important;box-shadow:var(--shadow)}
+.generalPanel,.basePanel{background:var(--c-card);border-radius:18px}
+button,input,select{border-radius:12px!important}
+button{min-height:44px}
+#summary{gap:12px}
+#summary>*{border-radius:16px!important;background:#fff!important}
+.toolbar input,.toolbar select{background:#fff;border:1px solid var(--c-border)}
+.legend.detailed{background:#fff;border-radius:16px}
+@media(max-width:700px){
+ body{font-size:15px}
+ main{padding:12px!important}
+ .hero{padding:16px!important}
+ .brandText h1{font-size:27px!important;margin:0}
+ .brandText strong{font-size:10px!important}
+ .brandText span{font-size:17px!important}
+ .baseHero{margin-top:12px!important}
+ .heroActions{gap:8px!important}
+ .heroActions button{min-height:44px!important}
+ #dailyDate{margin:8px 2px!important;font-size:13px!important}
+ .adminBar{border-radius:16px!important;padding:12px!important}
+ .generalPanel{padding:16px!important;margin:12px 0!important}
+ .generalHead{gap:10px!important}
+ .generalHead h2{font-size:24px!important;line-height:1.12;margin:0 0 5px!important}
+ .generalHead small{font-size:13px!important;color:var(--c-muted)}
+ #pdfReportBtn{width:100%!important;margin-top:8px!important}
+ .basePanel{padding:16px!important;margin:12px 0!important}
+ .basePanel strong{font-size:20px!important;line-height:1.2}
+ #staff{gap:8px!important}
+ #staff .staffCard{padding:12px!important;border-radius:14px!important}
+ #summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:12px 0!important}
+ #summary>*{min-width:0!important;width:auto!important;padding:14px 12px!important;min-height:88px!important;overflow:hidden}
+ #summary strong,#summary b{font-size:18px!important}
+ .toolbar{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;margin:12px 0!important}
+ .toolbar input,.toolbar select{width:100%!important;min-height:48px!important;padding:0 13px!important}
+ .legend.detailed{padding:12px!important;margin:10px 0!important;gap:8px!important}
+ .legend.detailed span{font-size:12px!important;line-height:1.35}
+ .sectionTitle{align-items:center!important;gap:8px!important}
+ .sectionTitle h2{font-size:25px!important}
+ #board{gap:12px!important}
+ footer{padding-bottom:24px!important}
+ dialog{max-width:calc(100vw - 24px)!important}
+}
