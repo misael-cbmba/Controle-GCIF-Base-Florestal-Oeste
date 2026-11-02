@@ -1,0 +1,28 @@
+/* v181 — barra móvel integrada ao fluxo visual: evita sobreposição sem alterar lógica. */
+@media(max-width:700px){
+  body{padding-bottom:18px!important}
+  main{padding-bottom:12px!important}
+
+  /* A navegação deixa de flutuar sobre os dados e passa a ocupar espaço real no layout. */
+  .stableNav172{
+    position:sticky!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    width:calc(100% - 28px)!important;
+    margin:14px auto 8px!important;
+    z-index:9999!important;
+    padding:4px!important;
+    border-radius:17px!important;
+    box-sizing:border-box!important;
+  }
+  .stableNav172 a{min-height:46px!important;font-size:9.5px!important}
+  .stableNav172 .ico{font-size:18px!important}
+
+  /* Nenhum painel precisa mais compensar uma barra fixa sobreposta. */
+  .generalPanel{padding-bottom:12px!important}
+  #generalSummary,#generalBases,#geoMap93,#board,.basePanel,#vehicleControl94{
+    scroll-margin-bottom:74px!important;
+  }
+  footer{padding-bottom:18px!important}
+}
