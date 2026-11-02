@@ -1,0 +1,19 @@
+/* v179 — acabamento móvel pontual sobre v178. Somente CSS; sem lógica nova. */
+@media(max-width:700px){
+  body{padding-bottom:156px!important}
+  main{padding-top:7px!important;padding-bottom:36px!important}
+  #dailyDate{margin:3px 2px!important;font-size:10px!important;min-height:18px!important}
+  .stableCollapseToggle#adminToggle173{min-height:36px!important;margin:3px 0!important;padding:0 10px!important;font-size:11px!important;border-radius:12px!important}
+  #adminBar.adminBar{padding:5px 8px!important;min-height:34px!important;margin:2px 0!important;border-radius:12px!important}
+  #adminBar.adminBar>*{font-size:10px!important}
+  #adminBar.adminBar button{min-height:29px!important;padding:3px 7px!important}
+  #authMessage{font-size:10px!important;line-height:1.18!important;margin:2px 1px 3px!important}
+  .generalPanel{margin:6px 0 9px!important;padding:12px!important}
+  .generalHead h2{font-size:20px!important}
+  .generalHead small{font-size:10px!important}
+  #pdfReportBtn{min-height:35px!important;margin-top:4px!important}
+  .stableNav172{bottom:max(9px,env(safe-area-inset-bottom));left:14px;right:14px;padding:5px;border-radius:18px}
+  .stableNav172 a{min-height:49px}
+  #generalSummary,#generalBases,#geoMap93,#board,.basePanel,#vehicleControl94{scroll-margin-bottom:110px!important}
+  footer{padding-bottom:88px!important}
+}
