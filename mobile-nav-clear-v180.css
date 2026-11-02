@@ -1,0 +1,14 @@
+/* v180 — correção definitiva da sobreposição da navegação inferior. Somente CSS. */
+@media(max-width:700px){
+  :root{--nav180-h:68px;--nav180-gap:14px}
+  body{padding-bottom:calc(var(--nav180-h) + 42px + env(safe-area-inset-bottom))!important}
+  main{padding-bottom:calc(var(--nav180-h) + 30px)!important}
+  .generalPanel{padding-bottom:calc(var(--nav180-h) + 10px)!important;margin-bottom:10px!important}
+  #generalSummary{margin-bottom:10px!important}
+  #generalBases{padding-bottom:4px!important}
+  .stableNav172{left:18px!important;right:18px!important;bottom:max(8px,env(safe-area-inset-bottom))!important;padding:4px!important;gap:3px!important;border-radius:17px!important;min-height:0!important}
+  .stableNav172 a{min-height:45px!important;border-radius:13px!important;font-size:10px!important;gap:1px!important}
+  .stableNav172 .ico{font-size:18px!important}
+  #generalSummary,#generalBases,#geoMap93,#board,.basePanel,#vehicleControl94{scroll-margin-bottom:calc(var(--nav180-h) + 26px)!important}
+  footer{padding-bottom:calc(var(--nav180-h) + 34px)!important}
+}
