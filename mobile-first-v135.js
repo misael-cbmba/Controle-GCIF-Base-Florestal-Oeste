@@ -1,2 +1,2 @@
-// v165 — entrada única da interface móvel; componentes antigos desativados.
-(()=>{document.querySelectorAll('.mobileQuickNav,#nav163,#nav164').forEach(el=>el.remove());import('./mobile-ux-v165.js?v=165').catch(e=>console.error('Falha UX móvel v165',e));})();
+// v170 — entrada única da interface móvel estável.
+(()=>{document.querySelectorAll('.mobileQuickNav,#nav163,#nav164').forEach(el=>el.remove());import('./mobile-ux-v165.js?v=170').catch(e=>console.error('Falha UX móvel v170',e));})();
