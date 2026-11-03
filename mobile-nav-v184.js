@@ -1,13 +1,23 @@
-// v184 — restaura navegação móvel fixa, sem observers e sem alterar dados.
+// v185 — navegação móvel fixa com 5 atalhos: Geral, Mapa, GCIFs, Viaturas e Base.
 (()=>{
  const mobile=()=>window.matchMedia('(max-width:700px)').matches;
- const go=(sel)=>{const el=document.querySelector(sel);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
+ const findVehicle=()=>document.querySelector('#vehicleControl94')||[...document.querySelectorAll('h1,h2,h3')].find(el=>/controle de viaturas/i.test(el.textContent||''))?.closest('section,div')||[...document.querySelectorAll('h1,h2,h3')].find(el=>/controle de viaturas/i.test(el.textContent||''));
+ const go=(key)=>{
+   let el=null;
+   if(key==='general')el=document.querySelector('.generalPanel');
+   if(key==='map')el=document.querySelector('#geoMap93');
+   if(key==='gcifs')el=document.querySelector('#board')?.closest('section')||document.querySelector('#board');
+   if(key==='vehicles')el=findVehicle();
+   if(key==='base')el=document.querySelector('.basePanel');
+   if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+ };
  const init=()=>{
-  if(!mobile()||document.getElementById('mobileNav184'))return;
-  const nav=document.createElement('nav'); nav.id='mobileNav184'; nav.className='mobileNav184'; nav.setAttribute('aria-label','Navegação rápida');
-  nav.innerHTML=`<button data-go=".generalPanel"><span>🏠</span><b>Geral</b></button><button data-go="#geoMap93"><span>📍</span><b>Mapa</b></button><button data-go="#board"><span>🚒</span><b>GCIFs</b></button><button data-go="#vehicleControl94"><span>🚑</span><b>Viaturas</b></button><button data-go=".basePanel"><span>⚙️</span><b>Base</b></button>`;
+  if(!mobile())return;
+  document.getElementById('mobileNav184')?.remove();
+  const nav=document.createElement('nav');nav.id='mobileNav185';nav.className='mobileNav184 mobileNav185';nav.setAttribute('aria-label','Navegação rápida');
+  nav.innerHTML=`<button data-go="general"><span>🏠</span><b>Geral</b></button><button data-go="map"><span>📍</span><b>Mapa</b></button><button data-go="gcifs"><span>🚒</span><b>GCIFs</b></button><button data-go="vehicles"><span>🚑</span><b>Viaturas</b></button><button data-go="base"><span>⚙️</span><b>Base</b></button>`;
   document.body.appendChild(nav);
-  nav.addEventListener('click',e=>{const b=e.target.closest('button[data-go]');if(!b)return;go(b.dataset.go);});
+  nav.addEventListener('click',e=>{const b=e.target.closest('button[data-go]');if(b)go(b.dataset.go);});
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
