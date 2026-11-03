@@ -1,4 +1,4 @@
-/* v184 — barra inferior fixa de navegação rápida no celular. */
+/* v195 — barra inferior fixa de navegação rápida no celular. */
 @media(max-width:700px){
  body{padding-bottom:92px!important}
  .stableNav172{display:none!important}
@@ -10,3 +10,13 @@
  footer{padding-bottom:88px!important}
 }
 @media(min-width:701px){.mobileNav184{display:none!important}}
+
+/* v195 — mantém cinco atalhos e libera conteúdo durante rolagem descendente. */
+@media(max-width:700px){
+ html{scroll-padding-bottom:120px}
+ .mobileNav184{transition:transform .2s ease,opacity .2s ease;will-change:transform}
+ .mobileNav184.navHidden195{transform:translateY(calc(100% + 30px));opacity:0;pointer-events:none}
+ #generalSummary,#geoMap186,#geoMap93,#vehicleControl94,.basePanel,#board,.generalPanel{scroll-margin-bottom:135px!important}
+ #board article.card button,#vehicleControl94 button,.basePanel button{scroll-margin-bottom:145px}
+}
+@media(max-width:700px) and (prefers-reduced-motion:reduce){.mobileNav184{transition:none!important}}
