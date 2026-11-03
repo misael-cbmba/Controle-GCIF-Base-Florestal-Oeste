@@ -1,4 +1,4 @@
-// v191 — um único resumo por GCIF no celular; detalhes e ações permanecem acessíveis.
+// v192 — um único resumo por GCIF no celular; detalhes e ações permanecem acessíveis.
 import{initializeApp,getApps}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
 import{getFirestore,collection,onSnapshot}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 const app=getApps()[0]||initializeApp({apiKey:'AIzaSyB6vG41F_gaQRk6jMMgBT-AEclDFlBWLOo',authDomain:'controle-gcif-oeste.firebaseapp.com',projectId:'controle-gcif-oeste',appId:'1:43290614749:web:16c567c1164e3c5aac3434'});
@@ -28,6 +28,14 @@ board?.querySelectorAll('article.card').forEach(card=>{
  if(!details.isConnected)last.after(details);
  // Duplicatas de atualização são ocultadas apenas visualmente; não apagamos o histórico.
  const dup=[...details.querySelectorAll('div,small,span,p')].filter(el=>el.children.length===0&&/^(🕒|🕓|⏱|⌚|\s)*\s*(Última atualização|Atualizado)\s*:/i.test(el.textContent?.trim()||''));dup.forEach(el=>el.classList.add('duplicate191'));
+ // Alguns módulos exibem o horário em duas colunas (rótulo e valor separados).
+ // Ocultamos somente a linha redundante de atualização, sem apagar outros metadados.
+ for(const el of [...details.querySelectorAll('div,p,li,section')]){
+  if(el.closest('.team,.geo186,.editBtn,.deleteGcif117'))continue;
+  const txt=(el.textContent||'').trim();
+  if(/última atualiza[çc][ãa]o/i.test(txt)&&txt.length<110&&!el.querySelector('button,a,input,select,textarea')&&!el.querySelector('.team,.geo186'))el.classList.add('duplicate191');
+ }
+
  // Equipe e localização primeiro; ações administrativas por último.
  const actions=[...details.querySelectorAll('.editBtn,.deleteGcif117')];actions.forEach(el=>{if(el!==details.lastElementChild)details.appendChild(el)});
  details.open=wasOpen;details.querySelector(':scope > summary').textContent=wasOpen?'Ocultar detalhes':'Ver detalhes';
@@ -37,4 +45,4 @@ board?.querySelectorAll('article.card').forEach(card=>{
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;process()})}
 if(board){observer.observe(board,{childList:true,subtree:true});schedule()}
 onSnapshot(collection(db,'gcifs'),snap=>{rows=snap.docs.map(d=>d.data());schedule()});
-const css=document.createElement('style');css.textContent=`@media(max-width:700px){#board article.card{padding:14px 16px!important;margin-bottom:12px!important}#board article.card>.top{margin-bottom:8px!important}#board article.card>.place{font-weight:800!important}#board article.card>.last191{font-size:12px;color:#62726a;margin:8px 0 10px}#board .details191{border-top:1px solid #dce5df;padding-top:6px;margin-top:6px}#board .details191>summary{display:flex;align-items:center;min-height:44px;font-weight:800;color:#09663f;cursor:pointer;list-style:none}#board .details191>summary::-webkit-details-marker{display:none}#board .details191>summary:before{content:'▸';margin-right:9px}#board .details191[open]>summary:before{content:'▾'}#board .details191:not([open])>*:not(summary){display:none!important}#board .details191 .duplicate191{display:none!important}#board .details191 .team{margin:8px 0!important}#board .details191 .geo186{margin:10px 0!important}#board .details191 .editBtn,#board .details191 .deleteGcif117{width:100%!important;min-height:44px!important;margin:8px 0!important;padding:9px 12px!important}#board .details191 .read174Extra{display:block!important}#board .details191 .read174Details{display:none!important}}`;document.head.appendChild(css);
+const css=document.createElement('style');css.textContent=`@media(max-width:700px){#board article.card{padding:14px 16px!important;margin-bottom:8px!important}#board article.card>.top{margin-bottom:8px!important}#board article.card>.place{font-weight:800!important}#board article.card>.last191{font-size:12px;color:#62726a;margin:8px 0 10px}#board .details191{border-top:1px solid #dce5df;padding-top:6px;margin-top:6px}#board .details191>summary{display:flex;align-items:center;min-height:44px;font-weight:800;color:#09663f;cursor:pointer;list-style:none}#board .details191>summary::-webkit-details-marker{display:none}#board .details191>summary:before{content:'▸';margin-right:9px}#board .details191[open]>summary:before{content:'▾'}#board .details191:not([open])>*:not(summary){display:none!important}#board .details191 .duplicate191{display:none!important}#board .details191 .team{margin:8px 0!important}#board .details191 .geo186{margin:10px 0!important}#board .details191 .editBtn,#board .details191 .deleteGcif117{width:100%!important;min-height:44px!important;margin:8px 0!important;padding:9px 12px!important}#board .details191 .read174Extra{display:block!important}#board .details191 .read174Details{display:none!important#board .details191[open]{padding-bottom:12px!important}#board .details191[open] .editBtn,#board .details191[open] .deleteGcif117{scroll-margin-bottom:160px!important}#board article.card:last-child{margin-bottom:180px!important}#board{padding-bottom:150px!important}main{padding-bottom:180px!important}body{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}#mobileNav185{bottom:max(10px,env(safe-area-inset-bottom,0px))!important}#board .details191{scroll-margin-bottom:155px!important}}}`;document.head.appendChild(css);
