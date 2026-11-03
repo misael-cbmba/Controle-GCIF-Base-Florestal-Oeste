@@ -1,9 +1,9 @@
-// v195 — recolhíveis estáveis + navegação móvel + geolocalização + validação geográfica reforçada.
+// v196 — recolhíveis estáveis + navegação móvel + geolocalização + validação geográfica reforçada.
 (()=>{
  const mobile=()=>window.matchMedia('(max-width:700px)').matches;
  const makeToggle=(id,label,target,open=false)=>{if(!mobile()||document.getElementById(id)||!target)return;const btn=document.createElement('button');btn.type='button';btn.id=id;btn.className='stableCollapseToggle';btn.setAttribute('aria-expanded',String(open));btn.innerHTML=`<span>${label}</span><span class="stableChevron">${open?'▴':'▾'}</span>`;target.before(btn);target.classList.toggle('stableCollapsed',!open);btn.addEventListener('click',()=>{const closed=target.classList.toggle('stableCollapsed');btn.setAttribute('aria-expanded',String(!closed));btn.querySelector('.stableChevron').textContent=closed?'▾':'▴'})};
  const script=(src,key,type='')=>{if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');if(type)s.type=type;s.src=src;s.dataset[key]='1';document.body.appendChild(s)};
- const loadNav=()=>{if(!mobile())return;if(!document.querySelector('link[data-nav184]')){const l=document.createElement('link');l.rel='stylesheet';l.href='mobile-nav-v184.css?v=195';l.dataset.nav184='1';document.head.appendChild(l)}script('mobile-nav-v184.js?v=195','nav184')};
+ const loadNav=()=>{if(!mobile())return;if(!document.querySelector('link[data-nav184]')){const l=document.createElement('link');l.rel='stylesheet';l.href='mobile-nav-v184.css?v=196';l.dataset.nav184='1';document.head.appendChild(l)}script('mobile-nav-v184.js?v=196','nav184')};
  const init=()=>{if(mobile()){makeToggle('staffToggle173','👥 Equipe da Base',document.getElementById('staff'),false);makeToggle('legendToggle173','ⓘ Entenda as situações operacionais',document.querySelector('.legend.detailed'),false);const admin=document.getElementById('adminBar');if(admin)makeToggle('adminToggle173','⚙️ Administração',admin,false);loadNav()}script('geolocation-v186.js?v=186','geo186','module');script('geo-map-coordinates-v186.js?v=189','geomap186','module');script('mobile-ux-v189.js?v=189','ux189','module');script('mobile-cards-v191.js?v=192','cards191','module')};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
