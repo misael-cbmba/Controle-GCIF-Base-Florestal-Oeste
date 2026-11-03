@@ -1,4 +1,4 @@
-// v184 — recolhíveis estáveis + carregamento seguro da navegação móvel fixa.
+// v185 — recolhíveis estáveis + carregamento seguro da navegação móvel fixa com Viaturas.
 (()=>{
   const mobile=()=>window.matchMedia('(max-width:700px)').matches;
   const makeToggle=(id,label,target,open=false)=>{
@@ -17,8 +17,8 @@
   };
   const loadNav=()=>{
     if(!mobile())return;
-    if(!document.querySelector('link[data-nav184]')){const l=document.createElement('link');l.rel='stylesheet';l.href='mobile-nav-v184.css?v=184';l.dataset.nav184='1';document.head.appendChild(l)}
-    if(!document.querySelector('script[data-nav184]')){const s=document.createElement('script');s.src='mobile-nav-v184.js?v=184';s.defer=true;s.dataset.nav184='1';document.body.appendChild(s)}
+    if(!document.querySelector('link[data-nav184]')){const l=document.createElement('link');l.rel='stylesheet';l.href='mobile-nav-v184.css?v=185';l.dataset.nav184='1';document.head.appendChild(l)}
+    if(!document.querySelector('script[data-nav184]')){const s=document.createElement('script');s.src='mobile-nav-v184.js?v=185';s.defer=true;s.dataset.nav184='1';document.body.appendChild(s)}
   };
   const init=()=>{
     if(!mobile())return;
