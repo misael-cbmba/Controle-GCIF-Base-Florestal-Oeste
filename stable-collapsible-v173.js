@@ -1,4 +1,4 @@
-// v173 — Etapa 3: elementos recolhíveis estáveis no celular. Sem MutationObserver e sem alteração de dados.
+// v184 — recolhíveis estáveis + carregamento seguro da navegação móvel fixa.
 (()=>{
   const mobile=()=>window.matchMedia('(max-width:700px)').matches;
   const makeToggle=(id,label,target,open=false)=>{
@@ -15,12 +15,18 @@
       btn.querySelector('.stableChevron').textContent=closed?'▾':'▴';
     });
   };
+  const loadNav=()=>{
+    if(!mobile())return;
+    if(!document.querySelector('link[data-nav184]')){const l=document.createElement('link');l.rel='stylesheet';l.href='mobile-nav-v184.css?v=184';l.dataset.nav184='1';document.head.appendChild(l)}
+    if(!document.querySelector('script[data-nav184]')){const s=document.createElement('script');s.src='mobile-nav-v184.js?v=184';s.defer=true;s.dataset.nav184='1';document.body.appendChild(s)}
+  };
   const init=()=>{
     if(!mobile())return;
     makeToggle('staffToggle173','👥 Equipe da Base',document.getElementById('staff'),false);
     makeToggle('legendToggle173','ⓘ Entenda as situações operacionais',document.querySelector('.legend.detailed'),false);
     const admin=document.getElementById('adminBar');
     if(admin)makeToggle('adminToggle173','⚙️ Administração',admin,false);
+    loadNav();
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
