@@ -8,7 +8,7 @@ const key=()=>localStorage.getItem('gcifBase')||'oeste';
 const getRecord=id=>rows.find(g=>Number(g.id)===Number(id)&&(key()==='oeste'?(!g.base||g.base==='oeste'):g.base===key()));
 const when=v=>{if(!v)return'Horário não informado';const d=v?.toDate?.()||new Date(v);return Number.isNaN(d.getTime())?'Horário não informado':d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})};
 function enhance(){if(!mobile())return;document.querySelectorAll('#board article.card').forEach(card=>{
- const id=Number((card.querySelector('h3')?.textContent||'').match(/GCIF\\s*(\\d+)/i)?.[1]);if(!id)return;
+ const id=Number((card.querySelector('h3')?.textContent||'').match(/GCIF\s*(\d+)/i)?.[1]);if(!id)return;
  const g=getRecord(id),timestamp=when(g?.updatedAt);
  let time=card.querySelector('.last189');if(!time){time=document.createElement('div');time.className='last189';(card.querySelector('.vehicle')||card.querySelector('.place'))?.after(time)}
  time.textContent='🕒 Última atualização: '+timestamp;
