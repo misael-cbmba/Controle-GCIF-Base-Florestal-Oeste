@@ -24,12 +24,12 @@ board?.querySelectorAll('article.card').forEach(card=>{
  card.querySelectorAll('.last189').forEach(el=>el.remove());
  let last=card.querySelector('.last191');if(!last){last=document.createElement('div');last.className='last191'}
  last.textContent='🕒 Atualizado: '+when(rec(id)?.updatedAt);
- const vehicle=card.querySelector('.vehicle');if(vehicle)vehicle.after(last);
+ const vehicle=card.querySelector('.vehicle');if(vehicle&&vehicle.nextElementSibling!==last)vehicle.after(last);
  if(!details.isConnected)last.after(details);
  // Duplicatas de atualização são ocultadas apenas visualmente; não apagamos o histórico.
  const dup=[...details.querySelectorAll('div,small,span,p')].filter(el=>el.children.length===0&&/^(🕒|🕓|⏱|⌚|\s)*\s*(Última atualização|Atualizado)\s*:/i.test(el.textContent?.trim()||''));dup.forEach(el=>el.classList.add('duplicate191'));
  // Equipe e localização primeiro; ações administrativas por último.
- const actions=[...details.querySelectorAll('.editBtn,.deleteGcif117')];actions.forEach(el=>details.appendChild(el));
+ const actions=[...details.querySelectorAll('.editBtn,.deleteGcif117')];actions.forEach(el=>{if(el!==details.lastElementChild)details.appendChild(el)});
  details.open=wasOpen;details.querySelector(':scope > summary').textContent=wasOpen?'Ocultar detalhes':'Ver detalhes';
  if(!details.dataset.bound191){details.addEventListener('toggle',()=>{const s=details.querySelector(':scope > summary');if(s)s.textContent=details.open?'Ocultar detalhes':'Ver detalhes'});details.dataset.bound191='1'}
 });
