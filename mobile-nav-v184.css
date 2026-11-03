@@ -15,8 +15,10 @@
 @media(max-width:700px){
  html{scroll-padding-bottom:120px}
  .mobileNav184{transition:transform .2s ease,opacity .2s ease;will-change:transform}
- .mobileNav184.navHidden195{transform:translateY(calc(100% + 30px));opacity:0;pointer-events:none}
+ .mobileNav184.navHidden195{transform:none!important;opacity:1!important;pointer-events:auto!important}
  #generalSummary,#geoMap186,#geoMap93,#vehicleControl94,.basePanel,#board,.generalPanel{scroll-margin-bottom:135px!important}
  #board article.card button,#vehicleControl94 button,.basePanel button{scroll-margin-bottom:145px}
 }
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.mobileNav184{transition:none!important}}
+
+@media(max-width:700px){html body .stableNav172,html body #stableNav172{display:none!important}html body #mobileNav185{position:fixed!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;left:14px!important;right:14px!important;bottom:max(8px,env(safe-area-inset-bottom))!important;transform:none!important;opacity:1!important;pointer-events:auto!important;z-index:10000!important}html body{padding-bottom:140px!important}html body main{padding-bottom:140px!important}}
