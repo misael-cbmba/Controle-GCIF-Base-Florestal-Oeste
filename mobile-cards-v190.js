@@ -7,12 +7,12 @@ board.querySelectorAll('article.card').forEach(card=>{
  const legacy=card.querySelector('details.details189');if(legacy){for(const child of [...legacy.children])if(child.tagName!=='SUMMARY')details.appendChild(child);legacy.remove()}
  const time=card.querySelector('.last189');const meta=[...card.querySelectorAll('[class*="updated"],[class*="history"],[class*="audit"],[class*="meta"],[class*="timeline"],[class*="lastUpdate"],[class*="statusTime"]')].filter(el=>el!==time&&!el.closest('details.details190')&&!el.closest('.top'));
  // Ações e metadados existentes permanecem acessíveis em Ver detalhes.
- for(const el of [...card.querySelectorAll('.team,.notes,.geo186,.editBtn,.deleteGcif117'),...meta]){if(el!==details&&!el.contains(details))details.appendChild(el)}
+ for(const el of [...card.querySelectorAll('.team,.notes,.geo186,.editBtn,.deleteGcif117'),...meta]){if(el!==details&&!el.contains(details)&&el.parentElement!==details)details.appendChild(el)}
  // Remove repetições da data no resumo: mantém um único horário de referência.
  const textNodes=[...card.querySelectorAll('div,p,small,span')].filter(el=>!el.closest('.details190')&&!el.closest('.top')&&el!==time&&el.children.length===0&&/última atualiza[çc][ãa]o/i.test(el.textContent||''));
  if(time){time.textContent=time.textContent.replace(/Última atualização:/i,'Atualizado:');for(const el of textNodes)el.remove()}
  // Caso metadados adicionais sejam injetados depois, o observador os recolhe.
- const controls=[...card.querySelectorAll('button')].filter(b=>/^(Editar GCIF|Excluir GCIF)/i.test((b.textContent||'').trim()));for(const b of controls)details.appendChild(b);
+ const controls=[...card.querySelectorAll('button')].filter(b=>/^(Editar GCIF|Excluir GCIF)/i.test((b.textContent||'').trim()));for(const b of controls)if(b.parentElement!==details)details.appendChild(b);
  details.querySelectorAll('.editBtn,.deleteGcif117').forEach(b=>b.classList.add('action190'));
  const count=details.querySelectorAll('.team,.notes,.geo186,.editBtn,.deleteGcif117').length;if(!count&&details.children.length===1)details.remove();
 });
