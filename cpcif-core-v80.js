@@ -14,7 +14,7 @@ function draw(){
   const id=Number((card.querySelector('h3')?.textContent.match(/\d+/)||[])[0]);
   const g=rows.find(x=>inBase(x,baseKey())&&Number(x.id)===id); if(!g)return;
   const cp=list(g),team=Array.isArray(g.team)?g.team:[],driver=clean(g.driver),ul=card.querySelector('ul.team');
-  if(ul)ul.innerHTML=team.map(n=>{const d=same(n,driver),c=cp.some(v=>same(n,v));return `<li class="${d?'driver ':''}${c?'cpcifV80':''}"><span>${clean(n)}</span>${d?'<span class="driverTag">🚒 MOTORISTA</span>':''}${c?'<span class="cpcifV80Tag">🔥🌲 CPCIF</span>':''}</li>`}).join('');
+  if(ul){const markup=team.map(n=>{const d=same(n,driver),c=cp.some(v=>same(n,v));return `<li class="${d?'driver ':''}${c?'cpcifV80':''}"><span>${clean(n)}</span>${d?'<span class="driverTag">🚒 MOTORISTA</span>':''}${c?'<span class="cpcifV80Tag">🔥🌲 CPCIF</span>':''}</li>`}).join('');if(ul.innerHTML!==markup)ul.innerHTML=markup;}
   card.querySelectorAll('[data-cpcif-v80],[data-cpcif-card],[data-cpcif-core],.cpcifV80Info').forEach(x=>x.remove());
   if(cp.length){const info=document.createElement('div');info.className='cpcifV80Info';info.dataset.cpcifV80='1';info.innerHTML=`<b>🔥🌲 CPCIF:</b> ${cp.map(clean).join(' • ')}`;card.appendChild(info)}
  });
@@ -29,23 +29,12 @@ function fillEditor(){
  sel.innerHTML=team.map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${saved.some(v=>same(n,v))?'selected':''}>${n}</option>`).join('');
  window.dispatchEvent(new CustomEvent('gcif-cpcif-loaded',{detail:{saved,team}}));
 }
-function saveCpcif(){
- const box=document.querySelector('#eCpcif');
- const chosen=box?[...box.querySelectorAll('input:checked')].map(i=>clean(i.value)):[];
- const legacy=document.querySelector('#eCpcifV80');
- const cpcif=chosen.length?chosen:(legacy?[...legacy.selectedOptions].map(o=>clean(o.value)):[]);
- const id=Number((document.querySelector('#editTitle')?.textContent.match(/\d+/)||[])[0]);if(!id)return;
- const k=baseKey(),idDoc=k==='oeste'?String(id):`${k}__${String(id).padStart(2,'0')}`;
- // O app principal salva o documento completo. Gravamos CPCIF logo depois,
- // com merge, para impedir que o salvamento principal apague a seleção.
- setTimeout(async()=>{
-  try{await setDoc(doc(db,'gcifs',idDoc),{cpcif},{merge:true})}
-  catch(e){console.error('Erro ao salvar CPCIF',e);alert('Não foi possível salvar o CPCIF. Tente novamente.')}
- },900);
-}
 onSnapshot(collection(db,'gcifs'),s=>{rows=s.docs.map(d=>({...d.data(),id:Number(d.data().id||String(d.id).split('__').pop())}));draw();if(document.querySelector('#editor')?.open)setTimeout(fillEditor,80)});
-new MutationObserver(()=>{clearTimeout(window.__cp80);window.__cp80=setTimeout(()=>{draw();if(document.querySelector('#editor')?.open)fillEditor()},80)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+// Recarregar a seleção apenas quando o editor abrir, nunca durante a marcação.
+const editor=document.querySelector('#editor');if(editor)new MutationObserver(()=>{if(editor.open)setTimeout(fillEditor,60)}).observe(editor,{attributes:true,attributeFilter:['open']});
+// O cartão é reconstruído por app.js após salvar; reestilizar após a renderização.
+const board=document.querySelector('#board');let pending=false;if(board)new MutationObserver(()=>{if(pending)return;pending=true;setTimeout(()=>{pending=false;draw()},100)}).observe(board,{childList:true,subtree:false});
 document.querySelector('#eTeam')?.addEventListener('input',()=>setTimeout(fillEditor,0));
-document.querySelector('#save')?.addEventListener('click',saveCpcif,true);
+// CPCIF agora é persistido na mesma gravação do app.js; sem gravações atrasadas.
 const st=document.createElement('style');st.textContent=`#board li.cpcifV80{background:#d8f1df!important;border-left:5px solid #08783e!important;border-radius:8px!important;padding:5px 8px!important;font-weight:900!important;color:#075b35!important;margin:3px 0!important}#board li.cpcifV80.driver{background:linear-gradient(90deg,#fff0ae 0 48%,#d8f1df 48% 100%)!important}.cpcifV80Tag{display:inline-block;margin-left:7px;background:#08783e;color:#fff!important;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:900;white-space:nowrap}.cpcifV80Info{margin-top:10px;padding:8px 10px;background:#e8f6ec;border:1px solid #9dceb0;border-radius:9px;color:#075b35;font-size:13px;font-weight:700}#cpcifV80Label small{display:block;margin-top:5px;color:#53605a}#eCpcifV80{width:100%;min-height:145px;margin-top:7px;padding:6px;border:1px solid #cfd8d3;border-radius:10px}`;document.head.appendChild(st);
 installEditor();
