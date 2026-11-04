@@ -12,5 +12,29 @@ function render(rows){
  el.innerHTML=bases.map(([key,name])=>{const a=rows.filter(g=>bk(g)===key),combat=a.filter(g=>cat(g)==='COMBATE').length,monitor=a.filter(g=>cat(g)==='MONITORAMENTO').length,prevent=a.filter(g=>cat(g)==='ATIVIDADES PREVENTIVAS').length,ecd=a.filter(g=>cat(g)==='ECD-BASE').length,staff=a.reduce((n,g)=>n+(Array.isArray(g.team)?g.team.filter(clean).length:0),0),veh=new Set(a.map(g=>clean(g.vehicle).toUpperCase()).filter(Boolean)).size;
  return '<button type="button" class="quick203Base'+(combat?' hasCombat':'')+'" data-base203="'+key+'"><strong>'+name+'</strong><span>'+a.length+' GCIFs · '+staff+' militares</span><span class="quickCombat">🔥 '+combat+' em combate</span><span>🔎 '+monitor+' monitorando · 🌱 '+prevent+' prevenção</span><span>● '+ecd+' na Base · 🚒 '+veh+' viaturas vinculadas</span><em>Ver GCIFs desta Base</em></button>'}).join('');
 }
-panel.addEventListener('click',e=>{const b=e.target.closest('[data-base203]');if(!b)return;const k=b.dataset.base203;if(!bases.some(x=>x[0]===k))return;localStorage.setItem('gcifBase',k);location.reload()});
+// v204: utilizar a troca de Base do aplicativo sem recarregar a página.
+let changing204=false;
+panel.addEventListener('click',async e=>{
+ const b=e.target.closest('[data-base203]');if(!b||changing204)return;
+ const k=b.dataset.base203;if(!bases.some(x=>x[0]===k))return;
+ const selector=document.querySelector('#baseChoices [data-base="'+k+'"]');
+ if(!selector){alert('Não foi possível selecionar esta Base.');return}
+ changing204=true;
+ try{
+  selector.click();
+  // A troca é assíncrona: aguardar a seleção e a atualização dos cartões.
+  for(let n=0;n<40;n++){
+   if(localStorage.getItem('gcifBase')===k&&document.querySelector('#board article.card'))break;
+   await new Promise(r=>setTimeout(r,120));
+  }
+  const board=document.querySelector('#board');
+  if(board){
+   const target=board.closest('section')||board;
+   target.scrollIntoView({behavior:'smooth',block:'start'});
+   const heading=target.querySelector('h2');
+   if(heading)heading.setAttribute('tabindex','-1');
+   heading?.focus({preventScroll:true});
+  }
+ }finally{changing204=false}
+});
 onSnapshot(collection(db,'gcifs'),s=>render(s.docs.map(d=>d.data())),()=>{const e=document.getElementById('quick203Grid');if(e)e.textContent='Não foi possível carregar o resumo das Bases.'});
