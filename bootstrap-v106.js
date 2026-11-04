@@ -12,7 +12,7 @@ if (!document.getElementById('editMode')) {
 
 // app.js da versão antiga interrompia a execução ao procurar #editMode, que havia sido removido da tela.
 // Recarrega o módulo com uma URL versionada depois de restaurar a dependência invisível.
-import('./app.js?v=197').catch(err => {
+import('./app.js?v=199').catch(err => {
   console.error('Falha ao reinicializar Controle GCIF:', err);
   const box = document.getElementById('authMessage');
   if (box) {
