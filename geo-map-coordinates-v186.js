@@ -25,6 +25,7 @@ async function openCorrection200(k,id){
    choice.click();
    for(let i=0;i<35&&base()!==k;i++)await pause200(100);
    if(base()!==k){alert('Não foi possível selecionar a Base '+(BASES[k]||k)+'.');return}
+   await pause200(550); // aguarda recarregar cartões e permissões da nova Base
   }
   const search=document.getElementById('search'),filter=document.getElementById('filter');
   if(search&&search.value){search.value='';search.dispatchEvent(new Event('input',{bubbles:true}))}
