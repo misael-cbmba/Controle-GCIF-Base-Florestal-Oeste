@@ -12,7 +12,22 @@ function render(rows){
  el.innerHTML=bases.map(([key,name])=>{const a=rows.filter(g=>bk(g)===key),combat=a.filter(g=>cat(g)==='COMBATE').length,monitor=a.filter(g=>cat(g)==='MONITORAMENTO').length,prevent=a.filter(g=>cat(g)==='ATIVIDADES PREVENTIVAS').length,ecd=a.filter(g=>cat(g)==='ECD-BASE').length,staff=a.reduce((n,g)=>n+(Array.isArray(g.team)?g.team.filter(clean).length:0),0),veh=new Set(a.map(g=>clean(g.vehicle).toUpperCase()).filter(Boolean)).size;
  const selected=localStorage.getItem('gcifBase')===key;
  return '<button type="button" class="quick203Base'+(combat?' hasCombat':'')+(selected?' isSelected205':'')+'" data-base203="'+key+'" aria-pressed="'+selected+'"><strong>'+name+'</strong>'+(selected?'<span class="quickSelected">✓ BASE SELECIONADA</span>':'')+'<span class="quickMetric"><span>GCIFs</span><b>'+a.length+'</b></span><span class="quickMetric"><span>👥 Militares</span><b>'+staff+'</b></span><span class="quickMetric quickCombat"><span>🔥 Combate</span><b>'+combat+'</b></span><span class="quickMetric"><span>🔎 Monitoramento</span><b>'+monitor+'</b></span><span class="quickMetric"><span>🌱 Prevenção</span><b>'+prevent+'</b></span><span class="quickMetric"><span>● Na Base</span><b>'+ecd+'</b></span><span class="quickMetric"><span>🚒 Viaturas</span><b>'+veh+'</b></span><em>Ver GCIFs desta Base</em></button>'}).join('');
+ syncSelected206();
 }
+// v206: manter o destaque sincronizado mesmo quando a Base é escolhida pelo menu superior.
+function syncSelected206(k=localStorage.getItem('gcifBase')||'oeste'){
+ document.querySelectorAll('#quick203 [data-base203]').forEach(card=>{
+  const selected=card.dataset.base203===k;
+  card.classList.toggle('isSelected205',selected);
+  card.setAttribute('aria-pressed',String(selected));
+  let marker=card.querySelector('.quickSelected');
+  if(selected&&!marker){marker=document.createElement('span');marker.className='quickSelected';marker.textContent='✓ BASE SELECIONADA';card.querySelector('strong')?.after(marker)}
+  if(!selected)marker?.remove();
+ });
+}
+document.getElementById('baseChoices')?.addEventListener('click',e=>{
+ const b=e.target.closest('[data-base]');if(b)syncSelected206(b.dataset.base);
+});
 // v204: utilizar a troca de Base do aplicativo sem recarregar a página.
 let changing204=false;
 panel.addEventListener('click',async e=>{
