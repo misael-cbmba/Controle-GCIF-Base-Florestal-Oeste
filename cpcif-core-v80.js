@@ -16,7 +16,7 @@ function draw(){
   const cp=list(g),team=Array.isArray(g.team)?g.team:[],driver=clean(g.driver),ul=card.querySelector('ul.team');
   if(ul){const markup=team.map(n=>{const d=same(n,driver),c=cp.some(v=>same(n,v));return `<li class="${d?'driver ':''}${c?'cpcifV80':''}"><span>${clean(n)}</span>${d?'<span class="driverTag">🚒 MOTORISTA</span>':''}${c?'<span class="cpcifV80Tag">🔥🌲 CPCIF</span>':''}</li>`}).join('');if(ul.innerHTML!==markup)ul.innerHTML=markup;}
   card.querySelectorAll('[data-cpcif-v80],[data-cpcif-card],[data-cpcif-core],.cpcifV80Info').forEach(x=>x.remove());
-  if(cp.length){const info=document.createElement('div');info.className='cpcifV80Info';info.dataset.cpcifV80='1';info.innerHTML=`<b>🔥🌲 CPCIF:</b> ${cp.map(clean).join(' • ')}`;card.appendChild(info)}
+  // CPCIF é identificado exclusivamente junto ao nome de cada militar; sem quadro-resumo duplicado.
  });
 }
 function installEditor(){
