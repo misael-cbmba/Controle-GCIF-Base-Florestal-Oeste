@@ -1,0 +1,69 @@
+// v147 — menu de relatórios PDF por tópicos relevantes.
+import{getApps}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
+import{getFirestore,collection,onSnapshot}from'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+const BASES=[['chapada','BASE CHAPADA - LENÇÓIS'],['meio-oeste','BASE MEIO OESTE (B. JESUS DA LAPA)'],['norte','BASE NORTE (JUAZEIRO)'],['oeste','BASE OESTE (BARREIRAS)'],['sudoeste','BASE SUDOESTE (V. DA CONQUISTA)']];
+const bn=k=>(BASES.find(x=>x[0]===k)||BASES[3])[1],clean=s=>String(s||'').trim(),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cat=s=>{s=clean(s).toUpperCase();if(s==='COMBATE')return'COMBATE';if(s==='MONITORAMENTO'||s==='M')return'MONITORAMENTO';if(s==='ATIVIDADES PREVENTIVAS'||s==='PREVENTIVA'||s==='PREVENTIVO')return'ATIVIDADES PREVENTIVAS';return'ECD-BASE'};
+let rows=[],vehicles=[],configs={};try{const db=getFirestore(getApps()[0]);onSnapshot(collection(db,'gcifs'),s=>rows=s.docs.map(d=>({id:d.id,...d.data()})));onSnapshot(collection(db,'vehicles'),s=>vehicles=s.docs.map(d=>({id:d.id,...d.data()})),()=>{});onSnapshot(collection(db,'config'),s=>{configs={};s.docs.forEach(d=>{const x=d.data()||{};const k=x.baseKey||(d.id==='operation'?'oeste':d.id.startsWith('operation_')?d.id.replace('operation_',''):'');if(k)configs[k]=x})},()=>{})}catch(e){}
+function baseFilter(){const k=localStorage.getItem('gcifBase')||'oeste';return rows.filter(x=>(x.base||'oeste')===k)}
+const statusLabel=s=>cat(s)==='ATIVIDADES PREVENTIVAS'?'ATIVIDADES PREVENTIVAS':cat(s);
+function tableGCIF(a){return `<table><thead><tr><th>GCIF</th><th>Base</th><th>Situação</th><th>Município</th><th>Viatura</th><th>Equipe</th><th>Motorista</th><th>CPCIF</th></tr></thead><tbody>${a.length?a.map(g=>`<tr><td>${esc(g.id||'—')}</td><td>${esc(bn(g.base||'oeste'))}</td><td>${esc(statusLabel(g.status))}</td><td>${esc(g.city||'—')}</td><td>${esc(g.vehicle||'—')}</td><td>${esc((g.team||[]).join(' • ')||'—')}</td><td>${esc(g.driver||'—')}</td><td>${esc((Array.isArray(g.cpcif)?g.cpcif:[]).join(' • ')||'—')}</td></tr>`).join(''):'<tr><td colspan="8">Nenhum registro.</td></tr>'}</tbody></table>`}
+function staffCount(c={}){return new Set([c.commander,c.planning,c.operations,c.logistics,...(Array.isArray(c.adminSupport)?c.adminSupport:[]),...(Array.isArray(c.vehicleControl)?c.vehicleControl:[])].map(clean).filter(Boolean).map(x=>x.toUpperCase())).size}
+function reportSummary(a){const keys=new Set(a===rows?BASES.map(x=>x[0]):[localStorage.getItem('gcifBase')||'oeste']);const staff=[...keys].reduce((n,k)=>n+staffCount(configs[k]||{}),0);const members=a.reduce((n,g)=>n+(Array.isArray(g.team)?g.team.filter(clean).length:0),0),cpcif=a.reduce((n,g)=>n+(Array.isArray(g.cpcif)?g.cpcif.filter(clean).length:0),0),linked=a.filter(g=>clean(g.vehicle)).length;return '<div class="cards"><div class="card"><b>'+a.length+'</b>GCIFs</div><div class="card"><b>'+(members+staff)+'</b>Efetivo total (inclui staff)</div><div class="card"><b>'+members+'</b>Militares em equipes GCIF</div><div class="card"><b>'+staff+'</b>Staff das Bases</div><div class="card"><b>'+cpcif+'</b>Militares com CPCIF</div><div class="card"><b>'+linked+'</b>Viaturas vinculadas aos GCIFs</div></div>'}
+function doc(title,subtitle,body){const d=new Date();return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(title)}</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#102019;font-size:11px;margin:0}header{background:#123529;color:white;padding:16px 20px;border-radius:9px;margin-bottom:12px}h1{margin:0;font-size:24px}h1 span{color:#ffd21a}h2{margin:4px 0 0;font-size:15px}header p{margin:7px 0 0;color:#e8f3ed}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.card{border:1px solid #cbd8d1;border-radius:8px;padding:10px;background:#f7faf8}.card b{display:block;font-size:21px}.section{margin:13px 0 6px;font-size:14px;font-weight:800;color:#0b633f}table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#173c30;color:#fff;padding:7px;text-align:left}td{border:1px solid #ccd5d0;padding:7px;vertical-align:top;overflow-wrap:anywhere}tbody tr:nth-child(even){background:#f5f8f6}.danger{color:#b71c1c;font-weight:800}.foot{margin-top:12px;border-top:1px solid #bbb;padding-top:7px;color:#667;font-size:9px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><header><h1>CBMBA — <span>OPERAÇÃO FLORESTAL</span></h1><h2>${esc(title)}</h2><p>${esc(subtitle)} • Emitido em ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</p></header>${body}<div class="foot">Controle Operacional • Operação Florestal • CBMBA • Desenvolvido pelo CAP QOABM Misael Sousa - 2026</div><script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>`}
+
+let pdfLibrary209;
+function loadPdf209(){
+ if(window.jspdf?.jsPDF)return Promise.resolve(window.jspdf.jsPDF);
+ if(pdfLibrary209)return pdfLibrary209;
+ pdfLibrary209=new Promise((resolve,reject)=>{
+  const tag=document.createElement('script');
+  tag.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+  tag.onload=()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(Error('Biblioteca PDF indisponível'));
+  tag.onerror=()=>reject(Error('Não foi possível carregar o gerador PDF. Verifique a conexão.'));
+  document.head.appendChild(tag);
+ }).catch(e=>{pdfLibrary209=null;throw e});
+ return pdfLibrary209;
+}
+async function downloadPdf209(type){
+ if(!rows.length){alert('Aguarde o carregamento dos GCIFs e tente novamente.');return}
+ const base=localStorage.getItem('gcifBase')||'oeste';
+ const a=type==='base'?baseFilter():type==='combate'?rows.filter(g=>cat(g.status)==='COMBATE'):type==='monitoramento'?rows.filter(g=>cat(g.status)==='MONITORAMENTO'):type==='preventivas'?rows.filter(g=>cat(g.status)==='ATIVIDADES PREVENTIVAS'):type==='ecd'?rows.filter(g=>cat(g.status)==='ECD-BASE'):type==='indisponiveis'?rows.filter(g=>g.unavailable===true||clean(g.unavailableReason)):rows;
+ const names={geral:'RELATÓRIO OPERACIONAL GERAL',base:'RELATÓRIO DA '+bn(base),combate:'GCIF EM COMBATE',monitoramento:'GCIF EM MONITORAMENTO',preventivas:'ATIVIDADES PREVENTIVAS',ecd:'GCIF EM ECD-BASE',indisponiveis:'GCIF INDISPONÍVEIS',viaturas:'RELATÓRIO DE VIATURAS'};
+ const JS=await loadPdf209();
+ const pdf=new JS({orientation:'portrait',unit:'mm',format:'a4'});
+ const W=210,margin=14,line=5.2;let y=17,page=1;
+ function next(needed=8){if(y+needed>280){pdf.addPage();page++;y=17}}
+ function txt(value,size=10,bold=false,indent=0){pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);const lines=pdf.splitTextToSize(String(value??'—'),W-2*margin-indent);for(const t of lines){next(line);pdf.text(t,margin+indent,y);y+=line}}
+ pdf.setTextColor(12,73,48);txt('CBMBA  |  OPERAÇÃO FLORESTAL',16,true);y+=2;
+ pdf.setTextColor(20,35,29);txt(names[type]||names.geral,13,true);txt('Emitido em '+new Date().toLocaleString('pt-BR'),9);y+=5;
+ if(type==='geral'||type==='base'){
+  const keys=type==='geral'?BASES.map(b=>b[0]):[base];
+  const staff=keys.reduce((n,k)=>n+staffCount(configs[k]||{}),0);
+  const members=a.reduce((n,g)=>n+(Array.isArray(g.team)?g.team.filter(clean).length:0),0);
+  const linked=a.filter(g=>clean(g.vehicle)).length;
+  const cpcif=a.reduce((n,g)=>n+(Array.isArray(g.cpcif)?g.cpcif.filter(clean).length:0),0);
+  txt('RESUMO OPERACIONAL',11,true);txt('GCIFs: '+a.length+'  |  Efetivo total: '+(members+staff)+'  |  Staff: '+staff+'  |  Equipes: '+members);
+  txt('Viaturas vinculadas: '+linked+'  |  Militares com CPCIF: '+cpcif);
+  txt('Combate: '+a.filter(g=>cat(g.status)==='COMBATE').length+'  |  Monitoramento: '+a.filter(g=>cat(g.status)==='MONITORAMENTO').length);
+  txt('Atividades preventivas: '+a.filter(g=>cat(g.status)==='ATIVIDADES PREVENTIVAS').length+'  |  ECD-BASE: '+a.filter(g=>cat(g.status)==='ECD-BASE').length);
+  y+=5;
+ }
+ if(type==='viaturas'){
+  const map=new Map();
+  rows.forEach(g=>{if(clean(g.vehicle)){const p=clean(g.vehicle);map.set(p.toUpperCase(),{prefix:p,gcif:g.id,base:g.base})}});
+  vehicles.forEach(v=>{const p=clean(v.prefix||v.vehicle||v.id);if(p){map.set(p.toUpperCase(),{...(map.get(p.toUpperCase())||{}),...v,prefix:p})}});
+  txt('VIATURAS CADASTRADAS: '+map.size,11,true);y+=2;
+  for(const v of map.values()){next(24);txt('VIATURA: '+v.prefix,10,true);txt('GCIF: '+(v.gcif||v.gcifId||'—')+'  |  Base: '+bn(v.base||'oeste'));txt('Condição: '+(v.condition||v.status||'Não informada'));if(v.reason||v.notes)txt('Observações: '+(v.reason||'')+' '+(v.notes||''));y+=3}
+ }else{
+  txt('RELAÇÃO DE GCIFs ('+a.length+')',11,true);y+=2;
+  for(const g of a){next(26);pdf.setTextColor(12,73,48);txt((g.id||'GCIF')+'  |  '+bn(g.base||'oeste'),10,true);pdf.setTextColor(20,35,29);txt('Situação: '+cat(g.status)+'  |  Município: '+(g.city||'—'));txt('Viatura: '+(g.vehicle||'—')+'  |  Motorista: '+(g.driver||'—'));txt('Equipe: '+((Array.isArray(g.team)?g.team:[]).join(' • ')||'—'));if(Array.isArray(g.cpcif)&&g.cpcif.length)txt('CPCIF: '+g.cpcif.join(' • '));if(type==='indisponiveis')txt('Motivo: '+(g.unavailableReason||'Não informado'));y+=4}
+ }
+ const filename='CBMBA_'+type+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+ pdf.save(filename);
+}
+
+function generate(type){return downloadPdf209(type).catch(e=>{console.error('Falha ao gerar PDF',e);alert('Não foi possível baixar o PDF: '+e.message)})}
+
+function install(){const btn=document.getElementById('pdfReportBtn');if(!btn||document.getElementById('reportMenu147'))return;btn.textContent='📄 Exportar relatório PDF ▾';btn.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();document.getElementById('reportDialog147').showModal()},true);const dlg=document.createElement('dialog');dlg.id='reportDialog147';dlg.innerHTML=`<form method="dialog" class="report147"><h2>📄 Exportar relatório PDF</h2><p>Selecione o tópico do relatório:</p><div id="reportMenu147"><button type="button" data-r="geral">📊 Relatório operacional geral</button><button type="button" data-r="base">🏢 Base em visualização</button><button type="button" data-r="combate">🔥 GCIF em combate</button><button type="button" data-r="monitoramento">🔎 Monitoramento</button><button type="button" data-r="preventivas">🌱 Atividades preventivas</button><button type="button" data-r="ecd">● ECD-BASE</button><button type="button" data-r="indisponiveis">⚠️ GCIF indisponíveis</button><button type="button" data-r="viaturas">🚒 Viaturas</button></div><button value="cancel" class="close147">Fechar</button></form>`;document.body.appendChild(dlg);dlg.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(b){dlg.close();generate(b.dataset.r)}});const st=document.createElement('style');st.textContent=`#reportDialog147{border:0;border-radius:16px;padding:0;max-width:520px;width:min(92vw,520px);box-shadow:0 18px 55px #0005}#reportDialog147::backdrop{background:#07150f99}.report147{padding:20px}.report147 h2{margin:0 0 5px}.report147 p{color:#607068;margin:0 0 14px}#reportMenu147{display:grid;grid-template-columns:1fr 1fr;gap:9px}#reportMenu147 button{min-height:58px;border:1px solid #cfdad4;border-radius:10px;background:#f7faf8;text-align:left;padding:10px;font-weight:700;color:#173c30}.close147{margin-top:14px;width:100%;padding:12px;border:0;border-radius:9px}@media(max-width:600px){#reportMenu147{grid-template-columns:1fr}.report147{padding:15px}#reportMenu147 button{min-height:48px}}`;document.head.appendChild(st)}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install):install();
